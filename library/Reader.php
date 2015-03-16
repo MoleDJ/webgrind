@@ -117,7 +117,7 @@ class Webgrind_Reader
 	   	$result = array(
     	    'file'=>$file, 
     	    'line'=>$line,
-   		    'functionName'=>$function, 
+   		    'functionName'=> $this->getCompressedFunctionName($function),
    		    'summedSelfCost'=>$summedSelfCost,
    		    'summedInclusiveCost'=>$summedInclusiveCost, 
    		    'invocationCount'=>$invocationCount,
@@ -129,7 +129,24 @@ class Webgrind_Reader
 
 		return $result;
 	}
-	
+	function getCompressedFunctionName($functionName)
+    {
+        global $compressedFuncNames;
+        if(preg_match("/\((\d+)\)(.+)?/", $functionName, $matches))
+        {
+            $functionIndex = $matches[1];
+            if(isset($compressedFuncNames[$functionIndex]) && isset($matches[2]) == false)
+            {
+                $functionName = $compressedFuncNames[$functionIndex];
+            }
+            else
+            {
+                $functionName = trim($matches[2]);
+                $compressedFuncNames[$functionIndex] = $functionName;
+            }
+        }
+        return $functionName;
+    }
 	/**
 	 * Returns information about positions where a function has been called from
 	 *
